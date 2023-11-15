@@ -43,10 +43,13 @@ const redisClient = createClient({
 await redisClient.connect()
 
 //! drop index
-await new RedisVectorStore( new OpenAIEmbeddings(), { 
+const droppedIndex = await new RedisVectorStore( new OpenAIEmbeddings(), { 
     redisClient,
     indexName: process.env.REDIS_DB_INDEX || `knowledgeBase`
-}).dropIndex()
+}).dropIndex(true)
+
+console.log(`Dropped Index: ${droppedIndex}`)
+//process.exit(0)
 
 await RedisVectorStore.fromDocuments(
     docChunks,
