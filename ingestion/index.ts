@@ -26,6 +26,7 @@ const transformContent = async (doc: Document) => {
     }
 }
 
+//! convert markdown to plain text
 const plainTextDocs = [];
 for (const doc of docs) {
     const transformedDoc = await transformContent(doc);
@@ -42,7 +43,7 @@ const redisClient = createClient({
 })
 await redisClient.connect()
 
-//! drop index
+//! drop index before ingestion to avoid duplicates
 const droppedIndex = await new RedisVectorStore( new OpenAIEmbeddings(), { 
     redisClient,
     indexName: process.env.REDIS_DB_INDEX || `knowledgeBase`
@@ -51,6 +52,7 @@ const droppedIndex = await new RedisVectorStore( new OpenAIEmbeddings(), {
 console.log(`Dropped Index: ${droppedIndex}`)
 //process.exit(0)
 
+//! rebuild a redis vector store with the above documents
 await RedisVectorStore.fromDocuments(
     docChunks,
     new OpenAIEmbeddings(),
